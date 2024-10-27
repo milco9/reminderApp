@@ -1,0 +1,106 @@
+main {
+    border-left: 2px solid black;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.add-new {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-new button {
+    font-size: 1rem;
+    padding: 0.215rem 0.575rem 0.425rem 0.5rem;
+    margin-bottom: 0.75rem;
+    border-radius: 1.5rem;
+    background: none;
+    border: none;
+    position: relative;
+    bottom: .32rem;
+    color: rgba(255, 255, 255, 0.81);
+
+    &:hover,
+    &:active {
+        background: rgb(75, 85, 99);
+    }
+}
+
+
+.title h1 {
+    font-size: 2.25rem;
+    margin-bottom: .8rem;
+    margin-top: 0;
+    display: none;
+}
+
+.title {
+    h1.today {
+        color: rgb(var(--colot-today));
+        display: block;
+    }
+
+    h1.scheduled {
+        color: rgb(var(--colot-scheduled));
+    }
+
+    h1.all {
+        color: rgb(var(--colot-all));
+    }
+
+    h1.flagged {
+        color: rgb(var(--colot-flagged));
+    }
+
+}
+
+ol {
+    margin-top: 0;
+    padding-left: 0;
+    list-style-type: none;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.todos {
+    display: none;
+}
+
+.todos.today {
+    display: block;
+}
+
+
+.todos li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%; /* Nastaví šírku každého <li> na 100% rodiča */
+    box-sizing: border-box;
+}
+
+.todos p {
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgb(55, 65, 81);
+    flex-grow: 1;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.77);
+}
+
+.todos svg {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+
+    stroke: rgb(28, 34, 43);
+    stroke-width: 1;
+
+    fill: rgb(55, 65, 81);
+    cursor: pointer;
+}
+
+.todos svg:hover,
+.todos svg:active {
+    fill: rgb(100, 184, 65);
+}
