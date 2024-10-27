@@ -3,8 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const titles = document.querySelectorAll(".title h1");
     const addTaskButton = document.getElementById('addTaskButton');
     const todoList = document.querySelectorAll(".todos");
-    const taskParagraph = document.createElement('p');
-
+    let taskParagraph = document.createElement('p');
     let currentTodoList;
 
     navLinks.forEach(link => {
@@ -51,17 +50,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return circle;
     }
+
     // Uloženie úloh
     function saveTasks() {
         const todoLists = {};
 
-        console.log('UKLADAM')
-
         document.querySelectorAll('.todos').forEach((list) => {
             const listClass = list.className.split(' ').find(c => c !== 'todos');
             todoLists[listClass] = Array.from(list.getElementsByTagName('li')).map(li => {
+                const p = li.querySelector('p');
                 return {
-                    text: li.querySelector('p').textContent,
+                    text: p.textContent,
                     completed: li.querySelector('svg').classList.contains('completed')
                 };
             });
@@ -72,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function loadTasks() {
 
-        console.log('Nacitavam')
         const todoLists = JSON.parse(localStorage.getItem('todoLists'));
 
         if (todoLists) {
@@ -87,9 +85,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         svg.appendChild(circle);
 
-
                         // Pridaj event listener na blur
-                        taskParagraph.addEventListener('blur', function() {
+                        taskParagraph.addEventListener('blur', function () {
                             if (taskParagraph.textContent.trim() === '') {
                                 newTaskItem.remove(); // Odstráni celý li, ak je prázdny
                             }
@@ -97,11 +94,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         });
 
                         // Pridaj event listener na kliknutie SVG
-                        svg.addEventListener('click', function() {
+                        svg.addEventListener('click', function () {
                             newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
                             saveTasks(); // Ulož po odstránení
                         });
 
+                        taskParagraph = document.createElement('p');
                         taskParagraph.contentEditable = true;
                         taskParagraph.textContent = task.text; // Načítanie textu úlohy
 
@@ -115,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Pridaj úlohu do aktuálneho viditeľného zoznamu
-    addTaskButton.addEventListener('click', function() {
+    addTaskButton.addEventListener('click', function () {
         if (!currentTodoList) {
             currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
         }
@@ -136,11 +134,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         svg.appendChild(circle);
 
+        taskParagraph = document.createElement('p');
         taskParagraph.contentEditable = true;
-        taskParagraph.placeholder = 'Zadajte úlohu...';
 
         // Pridaj event listener na blur
-        taskParagraph.addEventListener('blur', function() {
+        taskParagraph.addEventListener('blur', function () {
             if (taskParagraph.textContent.trim() === '') {
                 newTaskItem.remove(); // Odstráni celý li, ak je prázdny
             }
@@ -148,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Pridaj event listener na kliknutie SVG
-        svg.addEventListener('click', function() {
+        svg.addEventListener('click', function () {
             newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
             saveTasks(); // Ulož po odstránení
         });
