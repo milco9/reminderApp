@@ -149,10 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
             currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
         }
 
-        if (currentTodoList === todosAll) {
-            console.log('ALL ZOZNAAAM');
-        }
-
         const taskParagraphs = currentTodoList.getElementsByTagName('p');
         const lastTask = taskParagraphs[taskParagraphs.length - 1];
 
@@ -182,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pridaj event listener na kliknutie SVG
         svg.addEventListener('click', function () {
-            console.log('Mazem', newTaskItem)
             newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
             saveTasks(); // Ulož po odstránení
         });
