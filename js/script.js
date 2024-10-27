@@ -182,6 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pridaj event listener na kliknutie SVG
         svg.addEventListener('click', function () {
+            console.log('Mazem', newTaskItem)
             newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
             saveTasks(); // Ulož po odstránení
         });
