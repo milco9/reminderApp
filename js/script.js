@@ -4,12 +4,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const addTaskButton = document.getElementById('addTaskButton');
     const todoList = document.querySelectorAll(".todos");
     let taskParagraph = document.createElement('p');
+    const todosAll = document.querySelector('.todos.today');
     let currentTodoList;
 
     navLinks.forEach(link => {
         link.addEventListener("click", function (event) {
             event.preventDefault();
+            const allTodosContainer = document.querySelector(".todos.all");
             const targetClass = link.className;
+
+            if (targetClass.includes('active')){
+                return;
+            }
+
             titles.forEach(title => {
                 if (title.classList.contains(targetClass)) {
                     title.style.display = "block";
@@ -32,8 +39,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Nastav aktuálny zoznam úloh
             currentTodoList = document.querySelector(`.todos.${targetClass}`);
+
+            if (targetClass === 'all') {
+                // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
+                displayAllTasks(allTodosContainer);
+            }
         });
     });
+
+    function displayAllTasks(container) {
+        // Najprv odstráni všetky deti z .todos.all, aby sme mali čistý zoznam
+        container.innerHTML = "";
+
+        // Vyber všetky zoznamy úloh okrem toho s triedou 'all'
+        const todoLists = document.querySelectorAll(".todos:not(.all)");
+
+        // Pre každý zoznam nájdeme jeho úlohy a skopírujeme ich
+        todoLists.forEach(todoList => {
+            const tasks = todoList.querySelectorAll("li");
+
+            tasks.forEach(task => {
+                // Skopíruj každú úlohu
+                const taskClone = task.cloneNode(true);
+                container.appendChild(taskClone);
+            });
+        });
+    }
 
     function getSvg() {
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -116,6 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
     addTaskButton.addEventListener('click', function () {
         if (!currentTodoList) {
             currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
+        }
+
+        if (currentTodoList === todosAll) {
+            console.log('ALL ZOZNAAAM');
         }
 
         const taskParagraphs = currentTodoList.getElementsByTagName('p');
