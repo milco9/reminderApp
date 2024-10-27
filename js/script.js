@@ -48,22 +48,37 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function displayAllTasks(container) {
-        // Najprv odstráni všetky deti z .todos.all, aby sme mali čistý zoznam
         container.innerHTML = "";
 
-        // Vyber všetky zoznamy úloh okrem toho s triedou 'all'
         const todoLists = document.querySelectorAll(".todos:not(.all)");
 
-        // Pre každý zoznam nájdeme jeho úlohy a skopírujeme ich
         todoLists.forEach(todoList => {
             const tasks = todoList.querySelectorAll("li");
 
             tasks.forEach(task => {
-                // Skopíruj každú úlohu
                 const taskClone = task.cloneNode(true);
+
+                // Nastavíme unikátny `data-id` atribút pre každú úlohu
+                const taskId = task.dataset.id || Date.now() + Math.random();
+                task.dataset.id = taskId;
+                taskClone.dataset.id = taskId;
+
+                // Pridaj event listener na odstránenie úlohy
+                const svg = taskClone.querySelector("svg");
+                svg.addEventListener("click", function () {
+                    removeTaskFromAllLists(taskId);
+                });
+
                 container.appendChild(taskClone);
             });
         });
+        console.log(todoLists)
+    }
+
+    function removeTaskFromAllLists(taskId) {
+        // Odstráni úlohu zo všetkých zoznamov
+        const allTasks = document.querySelectorAll(`[data-id="${taskId}"]`);
+        allTasks.forEach(task => task.remove());
     }
 
     function getSvg() {
