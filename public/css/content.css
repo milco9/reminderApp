@@ -20,9 +20,13 @@ main {
     bottom: .32rem;
     color: rgba(255, 255, 255, 0.81);
 
-    &:hover,
-    &:active {
+    &:not(:disabled):hover,
+    &:not(:disabled):active {
         background: rgb(75, 85, 99);
+    }
+
+    &:disabled {
+        color: rgb(var(--color-contentMain));
     }
 }
 
@@ -36,20 +40,20 @@ main {
 
 .title {
     h1.today {
-        color: rgb(var(--colot-today));
+        color: rgb(var(--color-today));
         display: block;
     }
 
     h1.scheduled {
-        color: rgb(var(--colot-scheduled));
+        color: rgb(var(--color-scheduled));
     }
 
     h1.all {
-        color: rgb(var(--colot-all));
+        color: rgb(var(--color-all));
     }
 
     h1.flagged {
-        color: rgb(var(--colot-flagged));
+        color: rgb(var(--color-flagged));
     }
 
 }
@@ -103,4 +107,19 @@ ol {
 .todos svg:hover,
 .todos svg:active {
     fill: rgb(100, 184, 65);
+}
+
+.todayReminder svg {
+    stroke: rgba(var(--color-today));
+    stroke-width: 2;
+}
+
+.scheduledReminder svg {
+    stroke: rgba(var(--color-scheduled));
+    stroke-width: 2;
+}
+
+.flaggedReminder svg {
+    stroke: rgba(var(--color-flagged));
+    stroke-width: 2;
 }

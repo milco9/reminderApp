@@ -72,22 +72,22 @@ nav {
 
     .today:hover,
     .today:active {
-        background: rgb(var(--colot-today));
+        background: rgb(var(--color-today));
     }
 
     .scheduled:hover,
     .scheduled:active {
-        background: rgb(var(--colot-scheduled));
+        background: rgb(var(--color-scheduled));
     }
 
     .all:hover,
     .all:active {
-        background: rgb(var(--colot-all));
+        background: rgb(var(--color-all));
     }
 
     .flagged:hover,
     .flagged:active {
-        background: rgb(var(--colot-flagged));
+        background: rgb(var(--color-flagged));
     }
 
 }
@@ -122,16 +122,16 @@ nav svg {
 }
 
 #todoNav svg {
-    background: rgb(var(--colot-today));
+    background: rgb(var(--color-today));
 }
 #scheduledNav svg {
-    background: rgb(var(--colot-scheduled));
+    background: rgb(var(--color-scheduled));
 }
 #allNav svg {
-    background: rgb(var(--colot-all));
+    background: rgb(var(--color-all));
 }
 #flaggedNav svg {
-    background: rgb(var(--colot-flagged));
+    background: rgb(var(--color-flagged));
 }
 
 .createdBy {

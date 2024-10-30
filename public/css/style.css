@@ -1,8 +1,9 @@
 :root {
-    --colot-today: 96, 165, 250;
-    --colot-scheduled: 239, 68, 68;
-    --colot-all: 125, 138, 165;
-    --colot-flagged: 245, 158, 11;
+    --color-today: 96, 165, 250;
+    --color-scheduled: 239, 68, 68;
+    --color-all: 125, 138, 165;
+    --color-flagged: 245, 158, 11;
+    --color-contentMain: 31, 41, 55;
 }
 
 
@@ -27,7 +28,7 @@ body {
     height: 36rem;
 
     border: 2px solid black;
-    background: rgb(31, 41, 55);
+    background: rgb(var(--color-contentMain));
     border-radius: 1rem;
 
     overflow: hidden;

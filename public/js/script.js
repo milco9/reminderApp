@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const allTodosContainer = document.querySelector(".todos.all");
             const targetClass = link.className;
 
-            if (targetClass.includes('active')){
+            if (targetClass.includes('active')) {
                 return;
             }
 
@@ -43,6 +43,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (targetClass === 'all') {
                 // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
                 displayAllTasks(allTodosContainer);
+                addTaskButton.disabled = true;
+
+            } else {
+                addTaskButton.disabled = false;
             }
         });
     });
@@ -53,6 +57,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const todoLists = document.querySelectorAll(".todos:not(.all)");
 
         todoLists.forEach(todoList => {
+            // Získaj triedy (class) z aktuálneho elementu
+            const classes = Array.from(todoList.classList); // Prevedieme classList na pole
+            // Predpokladajme, že máš len jednu relevantnú triedu
+            // Pridaj poslednú triedu do poľa
+            const relevantClass = classes.find(className => className !== 'todos');
             const tasks = todoList.querySelectorAll("li");
 
             tasks.forEach(task => {
@@ -62,17 +71,51 @@ document.addEventListener("DOMContentLoaded", function () {
                 const taskId = task.dataset.id || Date.now() + Math.random();
                 task.dataset.id = taskId;
                 taskClone.dataset.id = taskId;
+                // pridavame a zistujeme classu aby sme vedeli v zozname all rozlisit tasky z akeho su zoznamu
+                taskClone.className = relevantClass + 'Reminder';
 
                 // Pridaj event listener na odstránenie úlohy
                 const svg = taskClone.querySelector("svg");
                 svg.addEventListener("click", function () {
                     removeTaskFromAllLists(taskId);
+                    countNumberOfReminders();
                 });
-
                 container.appendChild(taskClone);
             });
         });
-        console.log(todoLists)
+    }
+
+
+    function setReminderCounter(todoLists) {
+        Object.keys(todoLists).forEach(className => {
+            const id = className + 'NumberId';
+            let numberOfReminders = todoLists[className].length;
+            const navigationItem = document.querySelector('.navigation');
+            const divElement = navigationItem.querySelector(`a.${className} > div`);
+
+            const newSpanItem = document.createElement('span');
+
+            if (className === 'all') {
+                numberOfReminders = countItemsExcludingAll(todoLists, 'all')
+            }
+            newSpanItem.textContent = numberOfReminders;
+            newSpanItem.id = id;
+
+            const existingSpan = divElement.querySelector(`span#${id}`);
+
+            if (existingSpan) {
+                existingSpan.remove();
+            }
+
+            divElement.appendChild(newSpanItem);
+        });
+    }
+
+    function countItemsExcludingAll(lists, excludeKey) {
+        return Object.keys(lists).reduce((total, key) => {
+            // Ak kľúč nie je 'all', sčíta dĺžku poľa
+            return key !== excludeKey ? total + lists[key].length : total;
+        }, 0);
     }
 
     function removeTaskFromAllLists(taskId) {
@@ -99,19 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Uloženie úloh
     function saveTasks() {
-        const todoLists = {};
-
-        document.querySelectorAll('.todos').forEach((list) => {
-            const listClass = list.className.split(' ').find(c => c !== 'todos');
-            todoLists[listClass] = Array.from(list.getElementsByTagName('li')).map(li => {
-                const p = li.querySelector('p');
-                return {
-                    text: p.textContent,
-                    completed: li.querySelector('svg').classList.contains('completed')
-                };
-            });
-        });
-
+        const todoLists = getActualTodosLists();
         localStorage.setItem('todoLists', JSON.stringify(todoLists));
     }
 
@@ -132,18 +163,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         svg.appendChild(circle);
 
                         // Pridaj event listener na blur
-                        taskParagraph.addEventListener('blur', function () {
-                            if (taskParagraph.textContent.trim() === '') {
-                                newTaskItem.remove(); // Odstráni celý li, ak je prázdny
-                            }
-                            saveTasks()
-                        });
-
+                        addBlurListener(newTaskItem);
                         // Pridaj event listener na kliknutie SVG
-                        svg.addEventListener('click', function () {
-                            newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
-                            saveTasks(); // Ulož po odstránení
-                        });
+                        addSvgClickListener(svg, newTaskItem);
 
                         taskParagraph = document.createElement('p');
                         taskParagraph.contentEditable = true;
@@ -155,10 +177,53 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             });
+            setReminderCounter(todoLists);
         }
     }
 
-    // Pridaj úlohu do aktuálneho viditeľného zoznamu
+    function getListName(list) {
+        return list.className.split(' ').find(c => c !== 'todos');
+    }
+
+    function getActualTodosLists() {
+        const todoLists = {};
+        document.querySelectorAll('.todos').forEach((list) => {
+            const listClass = getListName(list);
+            todoLists[listClass] = Array.from(list.getElementsByTagName('li')).map(li => {
+                const p = li.querySelector('p');
+                return {
+                    text: p.textContent,
+                    completed: li.querySelector('svg').classList.contains('completed')
+                };
+            });
+        });
+        return todoLists;
+    }
+
+    function countNumberOfReminders() {
+        const todoLists = getActualTodosLists();
+        setReminderCounter(todoLists)
+    }
+
+    function addSvgClickListener(svg, newTaskItem) {
+        svg.addEventListener('click', function () {
+            newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
+            saveTasks(); // Ulož po odstránení
+            countNumberOfReminders();
+        });
+    }
+
+    function addBlurListener(newTaskItem) {
+        taskParagraph.addEventListener('blur', function () {
+            if (taskParagraph.textContent.trim() === '') {
+                newTaskItem.remove(); // Odstráni celý li, ak je prázdny
+            }
+            saveTasks();
+            countNumberOfReminders();
+        });
+    }
+
+// Pridaj úlohu do aktuálneho viditeľného zoznamu
     addTaskButton.addEventListener('click', function () {
         if (!currentTodoList) {
             currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
@@ -184,18 +249,10 @@ document.addEventListener("DOMContentLoaded", function () {
         taskParagraph.contentEditable = true;
 
         // Pridaj event listener na blur
-        taskParagraph.addEventListener('blur', function () {
-            if (taskParagraph.textContent.trim() === '') {
-                newTaskItem.remove(); // Odstráni celý li, ak je prázdny
-            }
-            saveTasks();
-        });
+        addBlurListener(newTaskItem);
 
         // Pridaj event listener na kliknutie SVG
-        svg.addEventListener('click', function () {
-            newTaskItem.remove(); // Odstráni celý li pri kliknutí na SVG
-            saveTasks(); // Ulož po odstránení
-        });
+        addSvgClickListener(svg, newTaskItem);
 
         newTaskItem.appendChild(svg);
         newTaskItem.appendChild(taskParagraph);
@@ -204,6 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
         saveTasks(); // Ulož po pridaní úlohy
 
         taskParagraph.focus();
+        countNumberOfReminders();
     });
 
     loadTasks(); // Načítaj úlohy po načítaní stránky
