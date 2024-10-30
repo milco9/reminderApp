@@ -87,28 +87,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function setReminderCounter(todoLists) {
-        Object.keys(todoLists).forEach(className => {
-            const id = className + 'NumberId';
-            let numberOfReminders = todoLists[className].length;
-            const navigationItem = document.querySelector('.navigation');
-            const divElement = navigationItem.querySelector(`a.${className} > div`);
+        if (todoLists){
+            Object.keys(todoLists).forEach(className => {
+                const id = className + 'NumberId';
+                let numberOfReminders = todoLists[className].length;
+                const navigationItem = document.querySelector('.navigation');
+                const divElement = navigationItem.querySelector(`a.${className} > div`);
 
-            const newSpanItem = document.createElement('span');
+                const newSpanItem = document.createElement('span');
 
-            if (className === 'all') {
-                numberOfReminders = countItemsExcludingAll(todoLists, 'all')
-            }
-            newSpanItem.textContent = numberOfReminders;
-            newSpanItem.id = id;
+                if (className === 'all') {
+                    numberOfReminders = countItemsExcludingAll(todoLists, 'all')
+                }
+                newSpanItem.textContent = numberOfReminders;
+                newSpanItem.id = id;
 
-            const existingSpan = divElement.querySelector(`span#${id}`);
+                const existingSpan = divElement.querySelector(`span#${id}`);
 
-            if (existingSpan) {
-                existingSpan.remove();
-            }
+                if (existingSpan) {
+                    existingSpan.remove();
+                }
 
-            divElement.appendChild(newSpanItem);
-        });
+                divElement.appendChild(newSpanItem);
+            });
+            return;
+        }
+        // sluzi na prvotnu inicializaciu listov ked uzivatel prvy krat otvori stranku a nema este ulozene ziadne zoznamy
+        // a teda setneme mu 0 lebo vsetky listy su prazdne :)
+        countNumberOfReminders()
+
     }
 
     function countItemsExcludingAll(lists, excludeKey) {
@@ -177,8 +184,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             });
-            setReminderCounter(todoLists);
         }
+        setReminderCounter(todoLists);
     }
 
     function getListName(list) {
