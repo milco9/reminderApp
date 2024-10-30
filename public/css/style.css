@@ -41,3 +41,20 @@ main,
 aside {
     padding: 1.25rem;
 }
+
+@media (max-width: 580px) {
+    .app {
+        grid-template-columns: 1fr; /* Jedno stĺpcové rozloženie */
+    }
+
+    main {
+        display: none; /* Skryť hlavný obsah na menších obrazovkách */
+        /*display: block; !* Skryť hlavný obsah na menších obrazovkách *!*/
+    }
+
+    aside {
+        display: block; /* Zobraziť bočný panel */
+        /*display: none; !* Zobraziť bočný panel *!*/
+    }
+
+}

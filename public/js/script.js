@@ -2,10 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const navLinks = document.querySelectorAll("aside nav a");
     const titles = document.querySelectorAll(".title h1");
     const addTaskButton = document.getElementById('addTaskButton');
+    const goBackButton = document.getElementById('goBackButton');
     const todoList = document.querySelectorAll(".todos");
     let taskParagraph = document.createElement('p');
-    const todosAll = document.querySelector('.todos.today');
+    const allListsOl = document.querySelector('ol.todos');
+    const aside = document.querySelector("aside");
+    const main = document.querySelector("main");
     let currentTodoList;
+
 
     navLinks.forEach(link => {
         link.addEventListener("click", function (event) {
@@ -48,8 +52,87 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 addTaskButton.disabled = false;
             }
+            onlyMain()
         });
     });
+
+    goBackButton.addEventListener('click', function () {
+        onlyAside();
+    });
+
+    // Pridaj úlohu do aktuálneho viditeľného zoznamu
+    addTaskButton.addEventListener('click', function () {
+        addReminder();
+    });
+
+    // Pridaj úlohu do aktuálneho viditeľného zoznamu
+    allListsOl.addEventListener('click', function () {
+        if (isFroPhones()) {
+            addReminder();
+        }
+    })
+
+    loadTasks(); // Načítaj úlohy po načítaní stránky
+
+    function isFroPhones() {
+        const mediaQuery = window.matchMedia("(max-width: 580px)");
+
+        return mediaQuery.matches
+    }
+
+    function onlyMain() {
+        if (isFroPhones()) {
+            main.style.display = "block";
+            aside.style.display = "none";
+        }
+    }
+
+    function onlyAside() {
+        if (isFroPhones()) {
+            main.style.display = "none";
+            aside.style.display = "block";
+        }
+    }
+
+    function addReminder() {
+        if (!currentTodoList) {
+            currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
+        }
+
+        const taskParagraphs = currentTodoList.getElementsByTagName('p');
+        const lastTask = taskParagraphs[taskParagraphs.length - 1];
+
+        if (lastTask && lastTask.textContent.trim() === '') {
+            alert('Prosím, dokončite poslednú úlohu pred pridaním novej.');
+            lastTask.focus();
+            return;
+        }
+
+        const newTaskItem = document.createElement('li');
+
+        const svg = getSvg();
+        const circle = getCircle()
+
+        svg.appendChild(circle);
+
+        taskParagraph = document.createElement('p');
+        taskParagraph.contentEditable = true;
+
+        // Pridaj event listener na blur
+        addBlurListener(newTaskItem);
+
+        // Pridaj event listener na kliknutie SVG
+        addSvgClickListener(svg, newTaskItem);
+
+        newTaskItem.appendChild(svg);
+        newTaskItem.appendChild(taskParagraph);
+
+        currentTodoList.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
+        saveTasks(); // Ulož po pridaní úlohy
+
+        taskParagraph.focus();
+        countNumberOfReminders();
+    }
 
     function displayAllTasks(container) {
         container.innerHTML = "";
@@ -87,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function setReminderCounter(todoLists) {
-        if (todoLists){
+        if (todoLists) {
             Object.keys(todoLists).forEach(className => {
                 const id = className + 'NumberId';
                 let numberOfReminders = todoLists[className].length;
@@ -229,47 +312,6 @@ document.addEventListener("DOMContentLoaded", function () {
             countNumberOfReminders();
         });
     }
-
-// Pridaj úlohu do aktuálneho viditeľného zoznamu
-    addTaskButton.addEventListener('click', function () {
-        if (!currentTodoList) {
-            currentTodoList = document.querySelector('.todos.today'); // Ak je undefined, vyber predvolený
-        }
-
-        const taskParagraphs = currentTodoList.getElementsByTagName('p');
-        const lastTask = taskParagraphs[taskParagraphs.length - 1];
-
-        if (lastTask && lastTask.textContent.trim() === '') {
-            alert('Prosím, dokončite poslednú úlohu pred pridaním novej.');
-            lastTask.focus();
-            return;
-        }
-
-        const newTaskItem = document.createElement('li');
-
-        const svg = getSvg();
-        const circle = getCircle()
-
-        svg.appendChild(circle);
-
-        taskParagraph = document.createElement('p');
-        taskParagraph.contentEditable = true;
-
-        // Pridaj event listener na blur
-        addBlurListener(newTaskItem);
-
-        // Pridaj event listener na kliknutie SVG
-        addSvgClickListener(svg, newTaskItem);
-
-        newTaskItem.appendChild(svg);
-        newTaskItem.appendChild(taskParagraph);
-
-        currentTodoList.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
-        saveTasks(); // Ulož po pridaní úlohy
-
-        taskParagraph.focus();
-        countNumberOfReminders();
-    });
-
-    loadTasks(); // Načítaj úlohy po načítaní stránky
 });
+
+
