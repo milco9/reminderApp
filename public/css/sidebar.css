@@ -99,6 +99,7 @@ nav a {
     border-radius: 0.5rem;
     color: white;
     text-decoration: none;
+    transition: background 0.3s ease;
 }
 
 nav div {
