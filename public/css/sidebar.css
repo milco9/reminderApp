@@ -164,6 +164,13 @@ footer.createdBy p:hover {
     text-decoration: underline;
 }
 
+@media (min-width: 581px) and (max-width: 730px) {
+    nav {
+        /*fr jednotka sltpca*/
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 580px) {
     form,
     input {

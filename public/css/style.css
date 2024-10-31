@@ -40,12 +40,25 @@ body {
 main,
 aside {
     padding: 1.25rem;
+
 }
 
 @media (max-width: 580px) {
     .app {
         grid-template-columns: 1fr; /* Jedno stĺpcové rozloženie */
     }
+
+    main,
+    aside {
+        transition: opacity 0.5s ease; /* Tranzícia opacity s trvaním 0.5 sekundy */
+        opacity: 1; /* Zobrazenie na začiatku */
+    }
+
+    .hidden {
+        opacity: 0; /* Skrytie s animáciou */
+        pointer-events: none; /* Deaktivácia interakcie, ak je element skrytý */
+    }
+
 
     main {
         display: none; /* Skryť hlavný obsah na menších obrazovkách */
@@ -56,5 +69,16 @@ aside {
         display: block; /* Zobraziť bočný panel */
         /*display: none; !* Zobraziť bočný panel *!*/
     }
+}
+@media (min-width: 580px) {
 
+    main {
+        display: block; /* Skryť hlavný obsah na menších obrazovkách */
+        /*display: block; !* Skryť hlavný obsah na menších obrazovkách *!*/
+    }
+
+    aside {
+        display: block; /* Zobraziť bočný panel */
+        /*display: none; !* Zobraziť bočný panel *!*/
+    }
 }

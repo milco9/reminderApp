@@ -2,19 +2,32 @@ document.addEventListener("DOMContentLoaded", function () {
     const navLinks = document.querySelectorAll("aside nav a");
     const titles = document.querySelectorAll(".title h1");
     const addTaskButton = document.getElementById('addTaskButton');
+    const searchInput = document.getElementById('search-input');
     const goBackButton = document.getElementById('goBackButton');
+    const allNavButton = document.getElementById('allNav');
     const todoList = document.querySelectorAll(".todos");
     let taskParagraph = document.createElement('p');
     const allListsOl = document.querySelector('ol.todos');
+    const allTodosContainer = document.querySelector(".todos.all");
     const aside = document.querySelector("aside");
     const main = document.querySelector("main");
     let currentTodoList;
 
 
+    searchInput.addEventListener('focus', () => {
+        // ked kliknem na search hodi ma do ALL ktore idem prehladavat
+        allNavButton.click();
+    });
+
+    // vyhladavanie
+    searchInput.addEventListener('input', () => {
+        displayAllTasks(allTodosContainer, searchInput.value)
+    });
+
     navLinks.forEach(link => {
         link.addEventListener("click", function (event) {
             event.preventDefault();
-            const allTodosContainer = document.querySelector(".todos.all");
+            searchInput.value = '';
             const targetClass = link.className;
 
             if (targetClass.includes('active')) {
@@ -82,17 +95,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function onlyMain() {
         if (isFroPhones()) {
-            main.style.display = "block";
-            aside.style.display = "none";
+            main.classList.remove('hidden');
+            aside.classList.add('hidden');
+
+            setTimeout(() => {
+                main.style.display = "block";
+                aside.style.display = "none";
+            }, 150); // Čas by mal byť rovnaký ako dĺžka tranzície v CSS
+        } else {
+            showBooth();
         }
     }
 
     function onlyAside() {
         if (isFroPhones()) {
-            main.style.display = "none";
+            main.classList.add('hidden');
+            aside.classList.remove('hidden');
+
+            setTimeout(() => {
+                main.style.display = "none";
+                aside.style.display = "block";
+            }, 150); // Čas by mal byť rovnaký ako dĺžka tranzície v CSS
+        } else {
+            showBooth();
+        }
+    }
+
+    function showBooth() {
+        if (isFroPhones()) {
+            main.style.display = "block";
             aside.style.display = "block";
         }
     }
+
 
     function addReminder() {
         if (!currentTodoList) {
@@ -134,7 +169,26 @@ document.addEventListener("DOMContentLoaded", function () {
         countNumberOfReminders();
     }
 
-    function displayAllTasks(container) {
+    function cloneTask(task, relevantClass, container) {
+        const taskClone = task.cloneNode(true);
+
+        // Nastavíme unikátny `data-id` atribút pre každú úlohu
+        const taskId = task.dataset.id || Date.now() + Math.random();
+        task.dataset.id = taskId;
+        taskClone.dataset.id = taskId;
+        // pridavame a zistujeme classu aby sme vedeli v zozname all rozlisit tasky z akeho su zoznamu
+        taskClone.className = relevantClass + 'Reminder';
+
+        // Pridaj event listener na odstránenie úlohy
+        const svg = taskClone.querySelector("svg");
+        svg.addEventListener("click", function () {
+            removeTaskFromAllLists(taskId);
+            countNumberOfReminders();
+        });
+        container.appendChild(taskClone);
+    }
+
+    function displayAllTasks(container, search) {
         container.innerHTML = "";
 
         const todoLists = document.querySelectorAll(".todos:not(.all)");
@@ -148,22 +202,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const tasks = todoList.querySelectorAll("li");
 
             tasks.forEach(task => {
-                const taskClone = task.cloneNode(true);
-
-                // Nastavíme unikátny `data-id` atribút pre každú úlohu
-                const taskId = task.dataset.id || Date.now() + Math.random();
-                task.dataset.id = taskId;
-                taskClone.dataset.id = taskId;
-                // pridavame a zistujeme classu aby sme vedeli v zozname all rozlisit tasky z akeho su zoznamu
-                taskClone.className = relevantClass + 'Reminder';
-
-                // Pridaj event listener na odstránenie úlohy
-                const svg = taskClone.querySelector("svg");
-                svg.addEventListener("click", function () {
-                    removeTaskFromAllLists(taskId);
-                    countNumberOfReminders();
-                });
-                container.appendChild(taskClone);
+                if (search == null) {
+                    cloneTask(task, relevantClass, container);
+                } else if (task.innerText.includes(search)) {
+                    cloneTask(task, relevantClass, container);
+                }
             });
         });
     }
