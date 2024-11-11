@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const titles = document.querySelectorAll(".title h1");
     const addTaskButton = document.getElementById('addTaskButton');
     const searchInput = document.getElementById('search-input');
+    const searchInputMobile = document.getElementById('search-mobile');
     const goBackButton = document.getElementById('goBackButton');
     const allNavButton = document.getElementById('allNav');
     const todoList = document.querySelectorAll(".todos");
@@ -17,10 +18,21 @@ document.addEventListener("DOMContentLoaded", function () {
     searchInput.addEventListener('focus', () => {
         // ked kliknem na search hodi ma do ALL ktore idem prehladavat
         allNavButton.click();
+        if (isFroPhones()) {
+            // ak mam obrazovku pre telefony spravim si focus na search input v zozname
+            searchInputMobile.focus();
+            searchInputMobile.setSelectionRange(searchInputMobile.value.length, searchInputMobile.value.length);
+        }
     });
 
     // vyhladavanie
     searchInput.addEventListener('input', () => {
+        displayAllTasks(allTodosContainer, searchInput.value)
+    });
+
+    // vyhladavanie pre mobil
+    searchInputMobile.addEventListener('inputMobileSearch', () => {
+        console.log('AAAAAAAAAAAAAAAAAAA', searchInputMobile.value);
         displayAllTasks(allTodosContainer, searchInput.value)
     });
 
@@ -61,9 +73,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
                 displayAllTasks(allTodosContainer);
                 addTaskButton.disabled = true;
+                searchInputMobile.style.display = "block";
 
             } else {
                 addTaskButton.disabled = false;
+                searchInputMobile.style.display = "none";
             }
             onlyMain()
         });
