@@ -31,9 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // vyhladavanie pre mobil
-    searchInputMobile.addEventListener('inputMobileSearch', () => {
-        console.log('AAAAAAAAAAAAAAAAAAA', searchInputMobile.value);
-        displayAllTasks(allTodosContainer, searchInput.value)
+    searchInputMobile.addEventListener('input', () => {
+        displayAllTasks(allTodosContainer, searchInputMobile.value)
     });
 
     navLinks.forEach(link => {
@@ -73,8 +72,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
                 displayAllTasks(allTodosContainer);
                 addTaskButton.disabled = true;
-                searchInputMobile.style.display = "block";
-
+                if (isFroPhones()) {
+                    searchInputMobile.style.display = "block";
+                }
             } else {
                 addTaskButton.disabled = false;
                 searchInputMobile.style.display = "none";
