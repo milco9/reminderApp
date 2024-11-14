@@ -89,11 +89,15 @@ ol {
 }
 
 .todos p {
-    padding: 0.625rem 0;
+    padding: 0.625rem 0.3rem 0.625rem 0;
     border-bottom: 1px solid rgb(55, 65, 81);
     flex-grow: 1;
     margin: 0;
     color: rgba(255, 255, 255, 0.77);
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .todos svg {
@@ -111,6 +115,16 @@ ol {
 .todos svg:hover,
 .todos svg:active {
     fill: rgb(100, 184, 65);
+}
+
+svg.flagged-todo {
+    fill: rgb(75, 85, 99);
+
+    &:hover,
+    &:active {
+        fill: rgb(var(--color-flagged));
+    }
+
 }
 
 .todayReminder svg {

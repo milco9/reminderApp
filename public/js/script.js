@@ -146,7 +146,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const newTaskItem = document.createElement('li');
 
         const svg = getSvg();
-        const circle = getCircle()
+        const circle = getCircle();
+        const flag = getSvgFlagged();
 
         svg.appendChild(circle);
 
@@ -160,6 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addSvgClickListener(svg, newTaskItem);
 
         newTaskItem.appendChild(svg);
+        newTaskItem.appendChild(flag);
         newTaskItem.appendChild(taskParagraph);
 
         currentTodoList.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
@@ -273,6 +275,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return circle;
     }
 
+    function getSvgFlagged() {
+        // Vytvorenie SVG elementu
+        const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgElement.setAttribute("class", "flagged-todo");
+
+        // Vytvorenie PATH elementu
+        const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathElement.setAttribute("stroke", "currentColor");
+        pathElement.setAttribute("stroke-linecap", "round");
+        pathElement.setAttribute("stroke-linejoin", "round");
+        pathElement.setAttribute("stroke-width", "2");
+        pathElement.setAttribute("d", "M5 14v7M5 4.971v9.541c5.6-5.538 8.4 2.64 14-.086v-9.54C13.4 7.61 10.6-.568 5 4.97Z");
+
+        return svgElement.appendChild(pathElement);
+    }
+
     // Uloženie úloh
     function saveTasks() {
         const todoLists = getActualTodosLists();
@@ -290,21 +308,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     todoLists[className].forEach(task => {
                         const newTaskItem = document.createElement('li');
 
-                        const svg = getSvg();
-                        const circle = getCircle()
+                        const svgCircle = getSvg();
+                        const circle = getCircle();
+                        const flag = getSvgFlagged();
 
-                        svg.appendChild(circle);
+                        svgCircle.appendChild(circle);
 
                         // Pridaj event listener na blur
                         addBlurListener(newTaskItem);
                         // Pridaj event listener na kliknutie SVG
-                        addSvgClickListener(svg, newTaskItem);
+                        addSvgClickListener(svgCircle, newTaskItem);
 
                         taskParagraph = document.createElement('p');
                         taskParagraph.contentEditable = true;
                         taskParagraph.textContent = task.text; // Načítanie textu úlohy
 
-                        newTaskItem.appendChild(svg);
+                        newTaskItem.appendChild(svgCircle);
+                        newTaskItem.appendChild(flag);
                         newTaskItem.appendChild(taskParagraph);
                         listElement.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
                     });
