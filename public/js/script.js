@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const titles = document.querySelectorAll(".title h1");
     const addTaskButton = document.getElementById('addTaskButton');
     const searchInput = document.getElementById('search-input');
+    const todoFlag = document.querySelector(".flagged-todo");
     const goBackButton = document.getElementById('goBackButton');
     const allNavButton = document.getElementById('allNav');
     const todoList = document.querySelectorAll(".todos");
@@ -11,6 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const allTodosContainer = document.querySelector(".todos.all");
     const aside = document.querySelector("aside");
     const main = document.querySelector("main");
+
+    const activeFlag = 'activeFlag';
+
     let currentTodoList;
 
 
@@ -159,10 +163,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pridaj event listener na kliknutie SVG
         addSvgClickListener(svg, newTaskItem);
+        addSvgFlagClickListener(flag, newTaskItem);
 
         newTaskItem.appendChild(svg);
-        newTaskItem.appendChild(flag);
         newTaskItem.appendChild(taskParagraph);
+        newTaskItem.appendChild(flag);
 
         currentTodoList.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
         saveTasks(); // Ulož po pridaní úlohy
@@ -288,7 +293,8 @@ document.addEventListener("DOMContentLoaded", function () {
         pathElement.setAttribute("stroke-width", "2");
         pathElement.setAttribute("d", "M5 14v7M5 4.971v9.541c5.6-5.538 8.4 2.64 14-.086v-9.54C13.4 7.61 10.6-.568 5 4.97Z");
 
-        return svgElement.appendChild(pathElement);
+        svgElement.appendChild(pathElement)
+        return svgElement;
     }
 
     // Uloženie úloh
@@ -318,14 +324,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         addBlurListener(newTaskItem);
                         // Pridaj event listener na kliknutie SVG
                         addSvgClickListener(svgCircle, newTaskItem);
+                        addSvgFlagClickListener(flag, newTaskItem);
+
+                        if (task.flagged) {
+                            addFlag(flag)
+                        }
 
                         taskParagraph = document.createElement('p');
                         taskParagraph.contentEditable = true;
                         taskParagraph.textContent = task.text; // Načítanie textu úlohy
 
                         newTaskItem.appendChild(svgCircle);
-                        newTaskItem.appendChild(flag);
                         newTaskItem.appendChild(taskParagraph);
+                        newTaskItem.appendChild(flag);
                         listElement.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
                     });
                 }
@@ -346,7 +357,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const p = li.querySelector('p');
                 return {
                     text: p.textContent,
-                    completed: li.querySelector('svg').classList.contains('completed')
+                    completed: li.querySelector('svg').classList.contains('completed'),
+                    flagged: li.querySelector(".flagged-todo").classList.contains(activeFlag)
                 };
             });
         });
@@ -364,6 +376,22 @@ document.addEventListener("DOMContentLoaded", function () {
             saveTasks(); // Ulož po odstránení
             countNumberOfReminders();
         });
+    }
+
+    function addSvgFlagClickListener(svg, newTaskItem) {
+        svg.addEventListener('click', function () {
+            if (svg.classList.contains(activeFlag)) {
+                svg.classList.remove(activeFlag);
+            } else {
+                addFlag(svg)
+            }
+            saveTasks(); // Ulož po odstránení
+            countNumberOfReminders();
+        });
+    }
+
+    function addFlag(svg) {
+        svg.classList.add(activeFlag);
     }
 
     function addBlurListener(newTaskItem) {

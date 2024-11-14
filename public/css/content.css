@@ -127,6 +127,10 @@ svg.flagged-todo {
 
 }
 
+svg.activeFlag {
+    fill: rgb(var(--color-flagged));
+}
+
 .todayReminder svg {
     stroke: rgba(var(--color-today));
     stroke-width: 2;
