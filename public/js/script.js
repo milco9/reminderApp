@@ -84,10 +84,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 const container = targetClass === all ? allTodosContainer : flaggedTodosContainer;
                 displayWantedTasks(container, undefined, targetClass);
+                addTaskButton.disabled = true;
             } else {
                 searchInputMobile.style.display = "none";
                 // disablneme tlacidlo ak som flagged alebo all
-                addTaskButton.disabled = targetClass === flagged || targetClass === all;
+                addTaskButton.disabled = false;
             }
             onlyMain()
         });
