@@ -10,9 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let taskParagraph = document.createElement('p');
     const allListsOl = document.querySelector('ol.todos');
     const allTodosContainer = document.querySelector(".todos.all");
+    const flaggedTodosContainer = document.querySelector(".todos.flagged");
     const aside = document.querySelector("aside");
     const main = document.querySelector("main");
 
+
+    const all = 'all';
+    const flagged = 'flagged';
     const activeFlag = 'activeFlag';
 
     let currentTodoList;
@@ -25,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // vyhladavanie
     searchInput.addEventListener('input', () => {
-        displayAllTasks(allTodosContainer, searchInput.value)
+        displayWantedTasks(allTodosContainer, searchInput.value, all)
     });
 
     navLinks.forEach(link => {
@@ -61,13 +65,13 @@ document.addEventListener("DOMContentLoaded", function () {
             // Nastav aktuálny zoznam úloh
             currentTodoList = document.querySelector(`.todos.${targetClass}`);
 
-            if (targetClass === 'all') {
+            if (targetClass === all || targetClass === flagged) {
                 // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
-                displayAllTasks(allTodosContainer);
-                addTaskButton.disabled = true;
-
+                const container = targetClass === all ? allTodosContainer : flaggedTodosContainer;
+                displayWantedTasks(container, undefined, targetClass);
             } else {
-                addTaskButton.disabled = false;
+                // disablneme tlacidlo ak som flagged alebo all
+                addTaskButton.disabled = targetClass === flagged || targetClass === all;
             }
             onlyMain()
         });
@@ -195,24 +199,41 @@ document.addEventListener("DOMContentLoaded", function () {
         container.appendChild(taskClone);
     }
 
-    function displayAllTasks(container, search) {
+    function allTaskShow(search, task, relevantClass, container) {
+        if (search == null) {
+            cloneTask(task, relevantClass, container);
+        } else if (task.innerText.includes(search)) {
+            cloneTask(task, relevantClass, container);
+        }
+    }
+
+    function flaggedTaskShow(search, task, relevantClass, container) {
+        const svgElements = task.querySelectorAll('svg');
+        svgElements.forEach(svg => {
+            if (svg.classList.contains(activeFlag)) {
+                cloneTask(task, relevantClass, container);
+            }
+        });
+    }
+
+    function displayWantedTasks(container, search, nav) {
         container.innerHTML = "";
 
-        const todoLists = document.querySelectorAll(".todos:not(.all)");
+        const todoLists = document.querySelectorAll(".todos:not(.all):not(.flagged)");
 
         todoLists.forEach(todoList => {
             // Získaj triedy (class) z aktuálneho elementu
+            debugger;
             const classes = Array.from(todoList.classList); // Prevedieme classList na pole
-            // Predpokladajme, že máš len jednu relevantnú triedu
             // Pridaj poslednú triedu do poľa
             const relevantClass = classes.find(className => className !== 'todos');
             const tasks = todoList.querySelectorAll("li");
 
             tasks.forEach(task => {
-                if (search == null) {
-                    cloneTask(task, relevantClass, container);
-                } else if (task.innerText.includes(search)) {
-                    cloneTask(task, relevantClass, container);
+                if (nav === all) {
+                    allTaskShow(search, task, relevantClass, container);
+                } else if (nav === flagged) {
+                    flaggedTaskShow(search, task, relevantClass, container);
                 }
             });
         });
