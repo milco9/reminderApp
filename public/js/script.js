@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // vyhladavanie pre mobil
     searchInputMobile.addEventListener('input', () => {
-        displayAllTasks(allTodosContainer, searchInputMobile.value)
+        displayWantedTasks(allTodosContainer, searchInputMobile.value)
     });
 
     navLinks.forEach(link => {
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (targetClass === all || targetClass === flagged) {
                 // Ak je cieľom zoznam "all", zobraz všetky úlohy zo všetkých zoznamov
-                displayAllTasks(allTodosContainer);
+                displayWantedTasks(allTodosContainer);
                 if (isFroPhones()) {
                     searchInputMobile.style.display = "block";
                 }
