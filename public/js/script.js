@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let currentTodoList;
 
-
     searchInput.addEventListener('focus', () => {
         // ked kliknem na search hodi ma do ALL ktore idem prehladavat
         allNavButton.click();
