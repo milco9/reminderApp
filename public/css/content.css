@@ -80,17 +80,21 @@ ol {
 
 
 .todos li {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* Tri stĺpce: ikonka, text a vlajka */
+    grid-template-rows: auto auto; /* Dva riadky: prvý pre svg, p, svg, druhý pre span */
+    align-items: center; /* Vertikálne zarovnanie prvkov v každom riadku */
     gap: 8px;
+    row-gap: 2px;
     margin-bottom: 8px;
     width: 100%; /* Nastaví šírku každého <li> na 100% rodiča */
     box-sizing: border-box;
 }
 
 .todos p {
+    grid-column: 2; /* Text do druhého stĺpca */
+    grid-row: 1; /* Na prvom riadku */
     padding: 0.625rem 0.3rem 0.625rem 0;
-    border-bottom: 1px solid rgb(55, 65, 81);
     flex-grow: 1;
     margin: 0;
     color: rgba(255, 255, 255, 0.77);
@@ -99,6 +103,18 @@ ol {
     overflow-wrap: break-word;
     word-break: break-word;
 }
+
+/* usporiadanie svg elementov v riadku */
+.todos li svg:first-child {
+    grid-column: 1; /* Prvý SVG do prvého stĺpca */
+    grid-row: 1; /* Na prvom riadku */
+}
+
+.todos li svg.flagged-todo {
+    grid-column: 3; /* Druhé SVG do tretieho stĺpca */
+    grid-row: 1; /* Na prvom riadku */
+}
+
 
 .todos svg {
     flex: none;
@@ -129,6 +145,15 @@ svg.flagged-todo {
 
 svg.activeFlag {
     fill: rgb(var(--color-flagged));
+}
+
+.span-box {
+    grid-column: 1 / span 3; /* Span sa rozprestiera cez všetky tri stĺpce */
+    grid-row: 2; /* Na druhom riadku */
+    margin: 0 40px;
+    border-bottom: 1px solid rgb(55, 65, 81);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.65em;
 }
 
 .todayReminder svg {
