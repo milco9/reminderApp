@@ -156,6 +156,11 @@ svg.activeFlag {
     font-size: 0.65em;
 }
 
+.old-date{
+    color: rgb(var(--color-scheduled));
+    font-weight: bold;
+}
+
 .todayReminder svg {
     stroke: rgba(var(--color-today));
     stroke-width: 2;

@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const all = 'all';
     const flagged = 'flagged';
+    const today = 'today';
+    const scheduled = 'scheduled';
     const activeFlag = 'activeFlag';
 
     let currentTodoList;
@@ -205,7 +207,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         todoLists.forEach(todoList => {
             // Získaj triedy (class) z aktuálneho elementu
-            debugger;
             const classes = Array.from(todoList.classList); // Prevedieme classList na pole
             // Pridaj poslednú triedu do poľa
             const relevantClass = classes.find(className => className !== 'todos');
@@ -346,7 +347,8 @@ document.addEventListener("DOMContentLoaded", function () {
             lastTask.focus();
             return;
         }
-        const newTaskItem = createTaskItem();
+        const currentListClass = currentTodoList.className.split(' ').find(c => c !== 'todos')
+        const newTaskItem = createTaskItem(false, null, currentListClass);
 
         currentTodoList.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
         saveTasks(); // Ulož po pridaní úlohy
@@ -374,12 +376,61 @@ document.addEventListener("DOMContentLoaded", function () {
         setReminderCounter(todoLists);
     }
 
-    function createTaskItem(loadingTask, task) {
+    function isDateOlderThanToday(dateString) {
+        const [day, month, year] = dateString.split('.').map(Number); // Rozdelenie reťazca na deň, mesiac, rok
+        const inputDate = new Date(year, month - 1, day); // Vytvorenie objektu Date (mesiace sú indexované od 0)
+
+        const today = new Date(); // Dnešný dátum
+        today.setHours(0, 0, 0, 0); // Nastavenie času na začiatok dňa pre presné porovnanie
+        console.log(inputDate, today)
+        return inputDate < today; // Porovnanie dátumov
+    }
+
+    function getDate(currentListClass) {
+        const date = new Date();
+
+        if (currentListClass === today){
+            return formatDate(date);
+        }
+
+        if (currentListClass === scheduled){
+            date.setDate(date.getDate() + 1);
+            return formatDate(date);
+        }
+
+        return undefined;
+    }
+
+    function getSpanDate(loadingTask, task, currentListClass) {
+        const div = document.createElement('div');
+        div.setAttribute("class", "span-box");
+
+        if (task != null && task.date != null && loadingTask) {
+            const span = document.createElement('span');
+            const date = task.date
+            span.textContent = date;
+            if (isDateOlderThanToday(date)){
+                span.setAttribute("class", "old-date");
+            }
+            div.appendChild(span);
+        }else {
+            const span = document.createElement('span');
+            span.textContent = getDate(currentListClass);
+            div.appendChild(span);
+        }
+
+        return div;
+    }
+
+    function
+
+    createTaskItem(loadingTask, task, currentListClass) {
         const newTaskItem = document.createElement('li');
 
         const svg = getSvg();
         const circle = getCircle();
         const flag = getSvgFlagged();
+        const date = getSpanDate(loadingTask, task, currentListClass);
 
         svg.appendChild(circle);
         // Pridaj event listener na blur
@@ -401,6 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
         newTaskItem.appendChild(svg);
         newTaskItem.appendChild(taskParagraph);
         newTaskItem.appendChild(flag);
+        newTaskItem.appendChild(date);
         return newTaskItem;
     }
 
@@ -414,14 +466,23 @@ document.addEventListener("DOMContentLoaded", function () {
             const listClass = getListName(list);
             todoLists[listClass] = Array.from(list.getElementsByTagName('li')).map(li => {
                 const p = li.querySelector('p');
+                const span = li.querySelector('.span-box span');
                 return {
                     text: p.textContent,
                     completed: li.querySelector('svg').classList.contains('completed'),
-                    flagged: li.querySelector(".flagged-todo").classList.contains(activeFlag)
+                    flagged: li.querySelector(".flagged-todo").classList.contains(activeFlag),
+                    date: span ? span.textContent : null
                 };
             });
         });
         return todoLists;
+    }
+
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0'); // Pridá 0 na začiatok, ak je deň jednociferný
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesiace sú indexované od 0
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     }
 
     function countNumberOfReminders() {
