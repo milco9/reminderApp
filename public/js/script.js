@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const allNavButton = document.getElementById('allNav');
     const todoList = document.querySelectorAll(".todos");
     let taskParagraph = document.createElement('p');
+    const dateSpan = document.querySelector(".date-span");
     const allListsOl = document.querySelector('ol.todos');
     const allTodosContainer = document.querySelector(".todos.all");
     const flaggedTodosContainer = document.querySelector(".todos.flagged");
@@ -109,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isFroPhones()) {
             addReminder();
         }
-    })
+    });
 
     loadTasks(); // Načítaj úlohy po načítaní stránky
 
@@ -382,7 +383,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const today = new Date(); // Dnešný dátum
         today.setHours(0, 0, 0, 0); // Nastavenie času na začiatok dňa pre presné porovnanie
-        console.log(inputDate, today)
         return inputDate < today; // Porovnanie dátumov
     }
 
@@ -401,36 +401,108 @@ document.addEventListener("DOMContentLoaded", function () {
         return undefined;
     }
 
-    function getSpanDate(loadingTask, task, currentListClass) {
+    function getDivDate(loadingTask, task, currentListClass) {
         const div = document.createElement('div');
         div.setAttribute("class", "span-box");
 
+        const span = getSpanDate(loadingTask, task, currentListClass);
+        console.log(span)
+        div.appendChild(span);
+        return div;
+    }
+
+    function getSpanDate(loadingTask, task, currentListClass) {
+        const span = document.createElement('span');
+        span.contentEditable = true;
+
         if (task != null && task.date != null && loadingTask) {
-            const span = document.createElement('span');
             const date = task.date
             span.textContent = date;
             if (isDateOlderThanToday(date)){
                 span.setAttribute("class", "old-date");
             }
-            div.appendChild(span);
         }else {
-            const span = document.createElement('span');
             span.textContent = getDate(currentListClass);
-            div.appendChild(span);
         }
-
-        return div;
+        span.setAttribute("class", "date-span");
+        addAllEventListenersToSpan(span);
+        return span;
     }
 
-    function
+    function isValidDate(dateString) {
+        // Regex na formát DD.MM.YYYY
+        const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
 
-    createTaskItem(loadingTask, task, currentListClass) {
+        // Skontroluj základný formát
+        if (!dateRegex.test(dateString)) {
+            return false;
+        }
+
+        // Rozdelenie reťazca na deň, mesiac a rok
+        const [day, month, year] = dateString.split('.').map(Number);
+
+        // Skontroluj platnosť roka, mesiaca a dňa
+        if (year < 1000 || year > 9999 || month < 1 || month > 12 || day < 1) {
+            return false;
+        }
+
+        // Počet dní v mesiaci
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        // Skontroluj, či deň nie je väčší ako maximálny počet dní v mesiaci
+        return day <= daysInMonth;
+    }
+
+
+    function addAllEventListenersToSpan(span){
+        handleInput(span);
+        handleValidation(span);
+        addCursorToEnd(span);
+    }
+
+    // Automatické dopĺňanie bodiek
+    function handleInput(span) {
+        span.addEventListener('DOMSubtreeModified', () => {
+            let text = span.textContent.replace(/[^0-9]/g, ''); // Odstráni všetko okrem čísel
+            if (text.length > 2) text = text.slice(0, 2) + '.' + text.slice(2); // Pridá bodku po dni
+            if (text.length > 5) text = text.slice(0, 5) + '.' + text.slice(5); // Pridá bodku po mesiaci
+            span.textContent = text;
+        });
+    }
+
+    // Validácia po skončení úpravy
+    function handleValidation(span) {
+        span.addEventListener('blur', () => {
+            const dateText = span.textContent.trim();
+            if (isValidDate(dateText)) {
+                validationMessage.textContent = "Dátum je platný.";
+                validationMessage.className = "valid";
+            } else {
+                validationMessage.textContent = "Dátum je neplatný. Použite formát DD.MM.YYYY.";
+                validationMessage.className = "error";
+            }
+        });
+    }
+
+    // Zabezpečí kurzor na konci pri úprave
+    function addCursorToEnd(span) {
+        span.addEventListener('focus', () => {
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(span);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        });
+    }
+
+    function createTaskItem(loadingTask, task, currentListClass) {
         const newTaskItem = document.createElement('li');
 
         const svg = getSvg();
         const circle = getCircle();
         const flag = getSvgFlagged();
-        const date = getSpanDate(loadingTask, task, currentListClass);
+        const date = getDivDate(loadingTask, task, currentListClass);
 
         svg.appendChild(circle);
         // Pridaj event listener na blur
