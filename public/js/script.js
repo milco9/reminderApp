@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const scheduled = 'scheduled';
     const activeFlag = 'activeFlag';
 
+    const dateErrorMessage = 'Dátum je neplatný. Použite formát DD.MM.YYYY.';
+
     let currentTodoList;
 
     searchInput.addEventListener('focus', () => {
@@ -363,11 +365,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const todoLists = JSON.parse(localStorage.getItem('todoLists'));
 
         if (todoLists) {
+            moveTasksToTodayAndSort(todoLists)
             Object.keys(todoLists).forEach(className => {
                 const listElement = document.querySelector(`.todos.${className}`);
                 if (listElement) {
                     todoLists[className].forEach(task => {
-                        // const newTaskItem = document.createElement('li');
                         const newTaskItem = createTaskItem(true, task);
                         listElement.appendChild(newTaskItem); // Pridaj do aktuálneho zoznamu
                     });
@@ -377,23 +379,54 @@ document.addEventListener("DOMContentLoaded", function () {
         setReminderCounter(todoLists);
     }
 
+    function moveTasksToTodayAndSort(taskLists) {
+        // Prechádzame scheduled a presúvame vhodné úlohy do today
+        for (let i = taskLists.scheduled.length - 1; i >= 0; i--) {
+            const task = taskLists.scheduled[i];
+            const taskDate = task.date;
+
+            // Ak je dátum dnešný alebo starší
+            if (isDateOlderThanTomorrow(taskDate)) {
+                taskLists.today.push(task); // Presuň do today
+                taskLists.scheduled.splice(i, 1); // Odstráň zo scheduled
+            }
+        }
+        // Zoradenie today podľa dátumu
+        taskLists.scheduled.sort((a, b) => formatInputDay(a.date) - formatInputDay(b.date));
+        // Zoradenie today podľa dátumu
+        taskLists.today.sort((a, b) => formatInputDay(a.date) - formatInputDay(b.date));
+    }
+
     function isDateOlderThanToday(dateString) {
-        const [day, month, year] = dateString.split('.').map(Number); // Rozdelenie reťazca na deň, mesiac, rok
-        const inputDate = new Date(year, month - 1, day); // Vytvorenie objektu Date (mesiace sú indexované od 0)
+        const inputDate = formatInputDay(dateString)
 
         const today = new Date(); // Dnešný dátum
         today.setHours(0, 0, 0, 0); // Nastavenie času na začiatok dňa pre presné porovnanie
         return inputDate < today; // Porovnanie dátumov
     }
 
+    function isDateOlderThanTomorrow(dateString) {
+        const inputDate = formatInputDay(dateString)
+
+        const tomorrow = new Date(); // Dnešný dátum
+        tomorrow.setHours(0, 0, 0, 0); // Nastavenie času na začiatok dňa pre presné porovnanie
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return inputDate < tomorrow; // Porovnanie dátumov
+    }
+
+    function formatInputDay(dateString) {
+        const [day, month, year] = dateString.split('.').map(Number); // Rozdelenie reťazca na deň, mesiac, rok
+        return new Date(year, month - 1, day); // Vytvorenie objektu Date (mesiace sú indexované od 0)
+    }
+
     function getDate(currentListClass) {
         const date = new Date();
 
-        if (currentListClass === today){
+        if (currentListClass === today) {
             return formatDate(date);
         }
 
-        if (currentListClass === scheduled){
+        if (currentListClass === scheduled) {
             date.setDate(date.getDate() + 1);
             return formatDate(date);
         }
@@ -404,10 +437,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function getDivDate(loadingTask, task, currentListClass) {
         const div = document.createElement('div');
         div.setAttribute("class", "span-box");
-
-        const span = getSpanDate(loadingTask, task, currentListClass);
-        console.log(span)
-        div.appendChild(span);
+        div.appendChild(getSpanDate(loadingTask, task, currentListClass));
+        div.appendChild(getPErrorMessage())
         return div;
     }
 
@@ -418,15 +449,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (task != null && task.date != null && loadingTask) {
             const date = task.date
             span.textContent = date;
-            if (isDateOlderThanToday(date)){
+            if (isDateOlderThanToday(date)) {
                 span.setAttribute("class", "old-date");
             }
-        }else {
+        } else {
             span.textContent = getDate(currentListClass);
         }
-        span.setAttribute("class", "date-span");
+        span.classList.add("date-span");
         addAllEventListenersToSpan(span);
         return span;
+    }
+
+    function getPErrorMessage() {
+        const p = document.createElement('p');
+        p.setAttribute("class", "date-error");
+        p.textContent = dateErrorMessage;
+        return p;
     }
 
     function isValidDate(dateString) {
@@ -454,32 +492,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function addAllEventListenersToSpan(span){
-        handleInput(span);
+    function addAllEventListenersToSpan(span) {
         handleValidation(span);
         addCursorToEnd(span);
-    }
-
-    // Automatické dopĺňanie bodiek
-    function handleInput(span) {
-        span.addEventListener('DOMSubtreeModified', () => {
-            let text = span.textContent.replace(/[^0-9]/g, ''); // Odstráni všetko okrem čísel
-            if (text.length > 2) text = text.slice(0, 2) + '.' + text.slice(2); // Pridá bodku po dni
-            if (text.length > 5) text = text.slice(0, 5) + '.' + text.slice(5); // Pridá bodku po mesiaci
-            span.textContent = text;
-        });
     }
 
     // Validácia po skončení úpravy
     function handleValidation(span) {
         span.addEventListener('blur', () => {
             const dateText = span.textContent.trim();
-            if (isValidDate(dateText)) {
-                validationMessage.textContent = "Dátum je platný.";
-                validationMessage.className = "valid";
+            const errorElement = span.nextElementSibling;
+
+            if (dateText === '') {
+                // Ak je obsah span prázdny, odstráni element
+                console.log('Pole je prázdne, odstraňuje sa.');
+                span.remove(); // Odstráni len samotný <span>, ak to preferuješ
+            } else if (isValidDate(dateText)) {
+                errorElement.style.display = 'none';
             } else {
-                validationMessage.textContent = "Dátum je neplatný. Použite formát DD.MM.YYYY.";
-                validationMessage.className = "error";
+                errorElement.style.display = 'block';
             }
         });
     }
